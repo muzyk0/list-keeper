@@ -62,7 +62,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.ShoppingList"
+                            "$ref": "#/definitions/model.ApiCreateShoppingList"
                         }
                     }
                 ],
@@ -212,12 +212,47 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.ApiCreateShoppingItem": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Amount количество данного элемента (опционально)",
+                    "type": "integer"
+                },
+                "completed": {
+                    "description": "Completed состояние элемента",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "Name название элемента",
+                    "type": "string"
+                }
+            }
+        },
+        "model.ApiCreateShoppingList": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ApiCreateShoppingItem"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ShoppingItem": {
             "type": "object",
             "properties": {
                 "amount": {
                     "description": "Amount количество данного элемента (опционально)",
                     "type": "integer"
+                },
+                "completed": {
+                    "description": "Completed состояние элемента",
+                    "type": "boolean"
                 },
                 "created_at": {
                     "description": "CreatedAt время создания записи",
@@ -244,9 +279,6 @@ const docTemplate = `{
         "model.ShoppingList": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "boolean"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -281,7 +313,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:4000",
+	Host:             "localhost:5000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Shopping List API",

@@ -1,10 +1,34 @@
 basePath: /
 definitions:
+  model.ApiCreateShoppingItem:
+    properties:
+      amount:
+        description: Amount количество данного элемента (опционально)
+        type: integer
+      completed:
+        description: Completed состояние элемента
+        type: boolean
+      name:
+        description: Name название элемента
+        type: string
+    type: object
+  model.ApiCreateShoppingList:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.ApiCreateShoppingItem'
+        type: array
+      name:
+        type: string
+    type: object
   model.ShoppingItem:
     properties:
       amount:
         description: Amount количество данного элемента (опционально)
         type: integer
+      completed:
+        description: Completed состояние элемента
+        type: boolean
       created_at:
         description: CreatedAt время создания записи
         type: string
@@ -23,8 +47,6 @@ definitions:
     type: object
   model.ShoppingList:
     properties:
-      completed:
-        type: boolean
       created_at:
         type: string
       id:
@@ -43,7 +65,7 @@ definitions:
       message:
         type: string
     type: object
-host: localhost:4000
+host: localhost:5000
 info:
   contact: {}
   description: API сервиса для управления списками покупок.
@@ -79,7 +101,7 @@ paths:
         name: shoppingList
         required: true
         schema:
-          $ref: '#/definitions/model.ShoppingList'
+          $ref: '#/definitions/model.ApiCreateShoppingList'
       produces:
       - application/json
       responses:

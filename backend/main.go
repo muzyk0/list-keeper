@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	_ "list-keeper-backend/docs" // Если вы добавили пакет со сгенерированными swagger-доками
 	"list-keeper-backend/handler"
@@ -17,7 +18,7 @@ import (
 // @title Shopping List API
 // @version 1.0
 // @description API сервиса для управления списками покупок.
-// @host localhost:4000
+// @host localhost:5000
 // @BasePath /
 
 func main() {
@@ -41,6 +42,13 @@ func main() {
 	h := &handler.Handler{DB: db}
 
 	e := echo.New()
+
+	// Настройка CORS middleware
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"https://list-keeper.9art.ru", "http://localhost:5000"}, // Укажите разрешенные источники
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},             // Укажите разрешенные методы
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	// Настроим маршрутизацию
 	router.SetupRoutes(e, h)

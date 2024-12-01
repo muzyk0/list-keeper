@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:4000",
+    "host": "localhost:5000",
     "basePath": "/",
     "paths": {
         "/shopping-lists": {
@@ -56,7 +56,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.ShoppingList"
+                            "$ref": "#/definitions/model.ApiCreateShoppingList"
                         }
                     }
                 ],
@@ -206,12 +206,47 @@
         }
     },
     "definitions": {
+        "model.ApiCreateShoppingItem": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Amount количество данного элемента (опционально)",
+                    "type": "integer"
+                },
+                "completed": {
+                    "description": "Completed состояние элемента",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "Name название элемента",
+                    "type": "string"
+                }
+            }
+        },
+        "model.ApiCreateShoppingList": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ApiCreateShoppingItem"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ShoppingItem": {
             "type": "object",
             "properties": {
                 "amount": {
                     "description": "Amount количество данного элемента (опционально)",
                     "type": "integer"
+                },
+                "completed": {
+                    "description": "Completed состояние элемента",
+                    "type": "boolean"
                 },
                 "created_at": {
                     "description": "CreatedAt время создания записи",
@@ -238,9 +273,6 @@
         "model.ShoppingList": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "boolean"
-                },
                 "created_at": {
                     "type": "string"
                 },

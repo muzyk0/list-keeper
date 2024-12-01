@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"gorm.io/gorm"
 	"list-keeper-backend/model"
 	"list-keeper-backend/responses"
 	"net/http"
@@ -15,7 +16,7 @@ import (
 // @Tags shopping-lists
 // @Accept json
 // @Produce json
-// @Param shoppingList body model.ShoppingList true "Список покупок"
+// @Param shoppingList body model.ApiCreateShoppingList true "Список покупок"
 // @Success 201 {object} model.ShoppingList
 // @Failure 400 {object} responses.ErrorResponse
 // @Failure 500 {object} responses.ErrorResponse
@@ -41,7 +42,7 @@ func (h *Handler) CreateShoppingList(c echo.Context) error {
 // @Router /shopping-lists [get]
 func (h *Handler) GetShoppingLists(c echo.Context) error {
 	var lists []model.ShoppingList
-	if err := h.DB.Preload("Items").Find(&lists).Error; err != nil {
+	if err := h.DB.Preload("Items").Order("created_at desc").Find(&lists).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Message: "Failed to fetch shopping lists"})
 	}
 	return c.JSON(http.StatusOK, lists)
@@ -103,9 +104,33 @@ func (h *Handler) UpdateShoppingList(c echo.Context) error {
 // @Failure 500 {object} responses.ErrorResponse "Ошибка удаления списка покупок"
 // @Router /shopping-lists/{id} [delete]
 func (h *Handler) DeleteShoppingList(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	if err := h.DB.Delete(&model.ShoppingList{}, id).Error; err != nil {
+	// Пытаемся преобразовать параметр в целое число и проверяем на ошибку
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Message: "Invalid shopping list ID"})
+	}
+
+	// Проводим транзакцию
+	err = h.DB.Transaction(func(tx *gorm.DB) error {
+		// Удаляем связанные элементы
+		if err := tx.Delete(&model.ShoppingItem{}, "shopping_list_id = ?", id).Error; err != nil {
+			return err
+		}
+
+		// Удаляем саму запись списка покупок
+		if err := tx.Delete(&model.ShoppingList{}, id).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// Проверяем результат транзакции
+	if err != nil {
+		c.Echo().Logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Message: "Failed to delete shopping list"})
 	}
+
+	// Возвращаем успешный ответ
 	return c.JSON(http.StatusOK, responses.ErrorResponse{Message: "success"})
 }
