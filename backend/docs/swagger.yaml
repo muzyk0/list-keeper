@@ -1,0 +1,183 @@
+basePath: /
+definitions:
+  model.ShoppingItem:
+    properties:
+      amount:
+        description: Amount количество данного элемента (опционально)
+        type: integer
+      created_at:
+        description: CreatedAt время создания записи
+        type: string
+      id:
+        description: ID уникальный идентификатор элемента
+        type: integer
+      name:
+        description: Name название элемента
+        type: string
+      shopping_list_id:
+        description: ShoppingListID идентификатор связанного списка покупок
+        type: integer
+      updated_at:
+        description: UpdatedAt время последнего обновления записи
+        type: string
+    type: object
+  model.ShoppingList:
+    properties:
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/model.ShoppingItem'
+        type: array
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  responses.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: API сервиса для управления списками покупок.
+  title: Shopping List API
+  version: "1.0"
+paths:
+  /shopping-lists:
+    get:
+      description: Загружает все списки покупок вместе с их элементами
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Списки покупок успешно получены
+          schema:
+            items:
+              $ref: '#/definitions/model.ShoppingList'
+            type: array
+        "500":
+          description: Не удалось получить списки покупок
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Возвращает все списки покупок
+      tags:
+      - shopping-lists
+    post:
+      consumes:
+      - application/json
+      description: Создает новый список покупок
+      parameters:
+      - description: Список покупок
+        in: body
+        name: shoppingList
+        required: true
+        schema:
+          $ref: '#/definitions/model.ShoppingList'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ShoppingList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Создать список покупок
+      tags:
+      - shopping-lists
+  /shopping-lists/{id}:
+    delete:
+      description: Удаляет список покупок, используя предоставленный ID
+      parameters:
+      - description: ID списка покупок
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список покупок успешно удален
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Ошибка удаления списка покупок
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Удаляет существующий список покупок по ID
+      tags:
+      - shopping-lists
+    get:
+      description: Загружает список покупок вместе с его элементами, используя предоставленный
+        ID
+      parameters:
+      - description: ID списка покупок
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список покупок успешно получен
+          schema:
+            $ref: '#/definitions/model.ShoppingList'
+        "404":
+          description: Список покупок не найден
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Возвращает список покупок по указанному ID
+      tags:
+      - shopping-lists
+    put:
+      description: Обновляет данные списка покупок, используя предоставленный ID
+      parameters:
+      - description: ID списка покупок
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные списка покупок для обновления
+        in: body
+        name: list
+        required: true
+        schema:
+          $ref: '#/definitions/model.ShoppingList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список покупок успешно обновлен
+          schema:
+            $ref: '#/definitions/model.ShoppingList'
+        "400":
+          description: Недопустимые данные
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Список покупок не найден
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Ошибка обновления списка покупок
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Обновляет существующий список покупок по ID
+      tags:
+      - shopping-lists
+swagger: "2.0"
